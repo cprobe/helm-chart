@@ -11,8 +11,8 @@ This Helm Chart includes all the components of Cprobe for a complete experience.
     - [ ] MongoDB
     - [ ] Proxies
 - [x] Management & monitoring components:
-    - [x] Prometheus
-    - [x] Grafana
+    - [ ] Prometheus
+    - [ ] Grafana
     - [ ] Helm Chart Repository
 
 ## Prerequisites
