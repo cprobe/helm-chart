@@ -1,0 +1,19 @@
+{{- if .Values.plugins.mysql}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cprobe.fullname" . }}-mysqlconfigmap
+  namespace: {{ .Release.Namespace }}
+data:
+  main.yaml: |
+    {{- range $k, $v := .Values.mysql.config }}
+    {{ dict $k $v | toYaml | nindent 4 }}
+    {{- end }}
+
+  rule_head.toml: |-
+    {{ .Values.mysql.rule_head | nindent 4}}
+
+  rule_coll.toml: |-
+    {{ .Values.mysql.rule_coll | nindent 4}}
+
+{{- end}}
