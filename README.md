@@ -1,4 +1,23 @@
-# helm-chart
+# Cprobe Helm Chart
+
+## Features
+
+This Helm Chart includes all the components of Cprobe for a complete experience.
+
+- [x] Cprobe core components:
+    - [x] MySQL
+    - [ ] Redis
+    - [ ] Kafka
+    - [ ] MongoDB
+    - [ ] Proxies
+- [x] Management & monitoring components:
+    - [x] Prometheus
+    - [x] Grafana
+    - [ ] Helm Chart Repository
+
+## Prerequisites
+
+* Install the follow packages: ``git``, ``kubectl``, ``helm``, ``helm-docs``.
 
 ## How to install
 
@@ -7,53 +26,29 @@ Access a Kubernetes cluster.
 Add a chart helm repository with follow commands:
 
 ```console
-helm repo add vm https://victoriametrics.github.io/helm-charts/
+git clone https://github.com/cprobe/helm-chart.git
 
-helm repo update
+cd helm-chart
+
+helm install cprobe ./charts/cprobe -n cprobe
 ```
 
-List versions of ``cprobe`` chart available to installation:
-
-```console
-helm search repo cprobe -l
-```
-
-Export default values of ``cprobe`` chart to file ``values.yaml``:
-
-```console
-helm show values cprobe > values.yaml
-```
-
-Change the values according to the need of the environment in ``values.yaml`` file.
 
 Test the installation with command:
 
 ```console
 helm install cprobe cprobe -f values.yaml -n NAMESPACE --debug --dry-run
 ```
-
-Install chart with command:
-
-```console
-helm install vmsingle cprobe -f values.yaml -n NAMESPACE
-```
-
 Get the pods lists by running this commands:
 
 ```console
-kubectl get pods -A | grep 'single'
+kubectl get pods -A | grep 'cprobe'
 ```
 
 Get the application by running this command:
 
 ```console
-helm list -f vmsingle -n NAMESPACE
-```
-
-See the history of versions of ``vmsingle`` application with command.
-
-```console
-helm history vmsingle -n NAMESPACE
+helm list -n NAMESPACE
 ```
 
 ## How to uninstall
@@ -61,5 +56,5 @@ helm history vmsingle -n NAMESPACE
 Remove application with command.
 
 ```console
-helm uninstall vmsingle -n NAMESPACE
+helm uninstall cprobe -n NAMESPACE
 ```

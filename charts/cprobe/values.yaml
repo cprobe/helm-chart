@@ -53,6 +53,12 @@ plugins:
   kafka: false
   mongodb: false
 
+# todo components
+components:
+  prometheus: false
+  grafana: false
+
+# cprobe config
 cprobe:
   config:
     global:
