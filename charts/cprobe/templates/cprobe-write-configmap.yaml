@@ -5,7 +5,7 @@ metadata:
   name: {{ template "cprobe.fullname" . }}-cprobe-writeconfigmap
   namespace: {{ .Release.Namespace }}
 data:
-  write.yaml: |
+  writer.yaml: |
     {{- range $k, $v := .Values.cprobe.config }}
     {{ dict $k $v | toYaml | nindent 4 }}
     {{- end }}
