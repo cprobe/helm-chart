@@ -65,7 +65,7 @@ cprobe:
           target_label: env
           replacement: 'production'
     writers:
-      - url: http://127.0.0.1:9090/api/v1/write
+      - url: http://prometheus:9090/api/v1/write
         extra_labels:
           from: 9090
         metric_relabel_configs:
