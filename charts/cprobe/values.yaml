@@ -1,4 +1,5 @@
 replicaCount: 1
+namespaceCreate: true
 
 image:
   repository: flashcatcloud/cprobe
