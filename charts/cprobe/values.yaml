@@ -41,8 +41,6 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-
-
 nodeSelector: {}
 
 tolerations: []
@@ -110,7 +108,7 @@ mysql:
       - job_name: 'mysql'
         static_configs:
           - targets:
-              - '127.0.0.1:3306'
+              - 'mysql:3306'
         scrape_rule_files:
           - 'rule_head.toml'
           - 'rule_coll.toml'
