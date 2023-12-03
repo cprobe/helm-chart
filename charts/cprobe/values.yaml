@@ -115,7 +115,7 @@ mysql:
   rule_head: |
     [global]
     user = 'root'
-    password = 'cProbePa55'
+    password = 'root'
 
   rule_coll: |
     [collect_global_status]
