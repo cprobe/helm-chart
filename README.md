@@ -30,7 +30,7 @@ git clone https://github.com/cprobe/helm-chart.git
 
 cd helm-chart
 
-helm install cprobe ./charts/cprobe -n cprobe
+helm install cprobe ./charts/cprobe -n NAMESPACE
 ```
 
 
@@ -42,7 +42,7 @@ helm install cprobe cprobe -f values.yaml -n NAMESPACE --debug --dry-run
 Get the pods lists by running this commands:
 
 ```console
-kubectl get pods -A | grep 'cprobe'
+kubectl get pods -A | grep 'cprobe' -n NAMESPACE
 ```
 
 Get the application by running this command:
