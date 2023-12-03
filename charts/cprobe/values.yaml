@@ -90,6 +90,7 @@ cprobe:
         max_idle_conns_per_host: 2
         proxy_url: ""
         interface: ""
+        # todo tls
 #        tls_skip_verify: false
 #        tls_ca: /etc/ssl/certs/ca-certificates.crt
 #        tls_cert: /etc/ssl/certs/client.crt
