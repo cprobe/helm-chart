@@ -47,6 +47,9 @@ tolerations: []
 
 affinity: {}
 
+# if true, cprobe will not write metrics to remote target
+noWrite: false
+
 plugins:
   mysql: true
   redis: true
@@ -103,6 +106,29 @@ cprobe:
       - url: http://127.0.0.1:9091/api/v1/write
         extra_labels:
           from: 9091
+
+redis:
+  config:
+    global:
+      scrape_interval: 15s
+      external_labels:
+        cplugin: 'redis'
+    scrape_configs:
+      - job_name: 'redis'
+        static_configs:
+          - targets:
+              - 'redis-master:6379'
+        scrape_rule_files:
+          - 'rule.toml'
+
+  cluster: |
+    is_cluster = false
+
+  rule: |
+    [global]
+    user = ""
+    password = ""
+    
 
 mysql:
   config:
