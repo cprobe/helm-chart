@@ -30,6 +30,10 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           command: [ "/app/cprobe" ]
+          args:
+            {{- if .Values.noWrite}}
+            - "-no-writer"
+            {{- end}}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -46,21 +50,34 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
+            {{- if not .Values.noWrite}}
             - name: cprobe-writer-config
               mountPath: /app/conf.d
+            {{- end}}
             {{- if .Values.plugins.mysql}}
             - name: cprobe-mysql-config
               mountPath: /app/conf.d/mysql
             {{- end}}
+            {{- if .Values.plugins.redis}}
+            - name: cprobe-redis-config
+              mountPath: /app/conf.d/redis
+            {{- end}}
       volumes:
+        {{- if not .Values.noWrite}}
         - name: cprobe-writer-config
           configMap:
             name: {{ template "cprobe.fullname" . }}-cprobe-writeconfigmap
+        {{- end}}
         {{- if .Values.plugins.mysql}}
         - name: cprobe-mysql-config
           configMap:
             name: {{ template "cprobe.fullname" . }}-mysqlconfigmap
         {{- end}}
+       {{- if .Values.plugins.redis}}
+        - name: cprobe-redis-config
+          configMap:
+            name: {{ template "cprobe.fullname" . }}-redisconfigmap
+       {{- end}}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

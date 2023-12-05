@@ -1,0 +1,19 @@
+{{- if .Values.plugins.redis}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cprobe.fullname" . }}-redisconfigmap
+  namespace: {{ .Release.Namespace }}
+data:
+  main.yaml: |
+    {{- range $k, $v := .Values.redis.config }}
+    {{ dict $k $v | toYaml | nindent 4 }}
+    {{- end }}
+
+  cluster.toml: |-
+    {{ .Values.redis.cluster | nindent 4}}
+
+  rule.toml: |-
+    {{ .Values.redis.rule | nindent 4}}
+
+{{- end}}
