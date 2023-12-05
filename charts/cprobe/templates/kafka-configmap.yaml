@@ -1,0 +1,16 @@
+{{- if .Values.plugins.kafka}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cprobe.fullname" . }}-kafkaconfigmap
+  namespace: {{ .Release.Namespace }}
+data:
+  main.yaml: |
+    {{- range $k, $v := .Values.kafka.config }}
+    {{ dict $k $v | toYaml | nindent 4 }}
+    {{- end }}
+
+  rule.toml: |-
+    {{ .Values.kafka.rule | nindent 4}}
+
+{{- end}}
