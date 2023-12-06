@@ -62,6 +62,10 @@ spec:
             - name: cprobe-redis-config
               mountPath: /app/conf.d/redis
             {{- end}}
+            {{- if .Values.plugins.kafka}}
+            - name: cprobe-kafka-config
+              mountPath: /app/conf.d/kafka
+            {{- end}}
       volumes:
         {{- if not .Values.noWrite}}
         - name: cprobe-writer-config
@@ -77,6 +81,11 @@ spec:
         - name: cprobe-redis-config
           configMap:
             name: {{ template "cprobe.fullname" . }}-redisconfigmap
+       {{- end}}
+       {{- if .Values.plugins.kafka}}
+        - name: cprobe-kafka-config
+          configMap:
+            name: {{ template "cprobe.fullname" . }}-kafkaconfigmap
        {{- end}}
       {{- with .Values.nodeSelector }}
       nodeSelector:
