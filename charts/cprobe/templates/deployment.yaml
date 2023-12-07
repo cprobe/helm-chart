@@ -54,39 +54,14 @@ spec:
             - name: cprobe-writer-config
               mountPath: /app/conf.d
             {{- end}}
-            {{- if .Values.plugins.mysql}}
-            - name: cprobe-mysql-config
-              mountPath: /app/conf.d/mysql
-            {{- end}}
-            {{- if .Values.plugins.redis}}
-            - name: cprobe-redis-config
-              mountPath: /app/conf.d/redis
-            {{- end}}
-            {{- if .Values.plugins.kafka}}
-            - name: cprobe-kafka-config
-              mountPath: /app/conf.d/kafka
-            {{- end}}
+            {{ include "cprobe.deployment.mountConfig" . | nindent 12 }}
       volumes:
         {{- if not .Values.noWrite}}
         - name: cprobe-writer-config
           configMap:
             name: {{ template "cprobe.fullname" . }}-cprobe-writeconfigmap
         {{- end}}
-        {{- if .Values.plugins.mysql}}
-        - name: cprobe-mysql-config
-          configMap:
-            name: {{ template "cprobe.fullname" . }}-mysqlconfigmap
-        {{- end}}
-       {{- if .Values.plugins.redis}}
-        - name: cprobe-redis-config
-          configMap:
-            name: {{ template "cprobe.fullname" . }}-redisconfigmap
-       {{- end}}
-       {{- if .Values.plugins.kafka}}
-        - name: cprobe-kafka-config
-          configMap:
-            name: {{ template "cprobe.fullname" . }}-kafkaconfigmap
-       {{- end}}
+        {{ include "cprobe.deployment.mountConfigVolumes" . | nindent 8 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

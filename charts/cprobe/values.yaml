@@ -146,7 +146,7 @@ kafka:
 
   rule: |
     [global]
-    namespace = "kafka"          
+    namespace = "kafka"
 
 mysql:
   config:

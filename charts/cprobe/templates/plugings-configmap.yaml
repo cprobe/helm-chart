@@ -1,0 +1,24 @@
+{{- range $item, $plugin := .Values.plugins }}
+{{- $pluginName := $item }}
+{{ if $plugin }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Name }}-{{ $pluginName }}
+  namespace: {{ $.Release.Namespace }}
+data:
+{{- $config := get $.Values (print $pluginName) }}
+{{- range $k, $v := $config }}
+{{- $keyName:= (print $k)}}
+  {{ if eq $keyName "config" }}
+  main.yaml: |
+    {{- range $k2, $v2 := $v  }}
+    {{ dict $k2 $v2 | toYaml | nindent 4 }}
+    {{- end }}
+  {{- else }}
+  {{ $keyName  }}.toml: |
+    {{ $v | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
