@@ -129,24 +129,6 @@ redis:
     user = ""
     password = ""
 
-kafka:
-  config:
-    global:
-      scrape_interval: 15s
-      external_labels:
-        cplugin: 'kafka'
-
-    scrape_configs:
-      - job_name: 'kafka'
-        static_configs:
-          - targets:
-              - 'kafka:9092'
-        scrape_rule_files:
-          - 'rule.toml'
-
-  rule: |
-    [global]
-    namespace = "kafka"          
 
 mysql:
   config:

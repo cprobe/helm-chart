@@ -64,3 +64,30 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create configmaps mount into deployment
+*/}}
+{{- define "cprobe.deployment.mountConfig" -}}
+{{- range $item, $plugin := .Values.plugins }}
+{{- $pluginName := $item }}
+{{ if $plugin }}
+- name: cprobe-{{ $pluginName }}-config
+  mountPath: /app/conf.d/{{ $pluginName }}
+{{- end}}
+{{- end}}
+{{- end }}
+
+{{/*
+Create configmaps volumes for deployment mountConfig
+*/}}
+{{- define "cprobe.deployment.mountConfigVolumes" -}}
+{{- range $item, $plugin := .Values.plugins }}
+{{- $pluginName := $item }}
+{{ if $plugin }}
+- name: {{ $.Release.Name }}-{{ $pluginName }}-config
+  configMap:
+    name: {{ $.Release.Name }}-{{ $pluginName }}
+{{- end}}
+{{- end}}
+{{- end }}
