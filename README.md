@@ -7,8 +7,8 @@ This Helm Chart includes all the components of Cprobe for a complete experience.
 - [x] Cprobe core plugins:
     - [x] MySQL
     - [x] Redis
-    - [ ] Kafka
-    - [ ] MongoDB
+    - [x] Kafka
+    - [x] MongoDB
 - [x] Management & monitoring components:
     - [ ] Prometheus
     - [ ] Grafana
