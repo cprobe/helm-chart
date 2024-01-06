@@ -54,7 +54,16 @@ plugins:
   mysql: true
   redis: true
   kafka: true
+  blackbox: false
+  json: false
+  prometheus: true
+  elasticsearch: true
+  oracle: true
   mongodb: true
+  whois: true
+  postgres: true
+  tomcat: true
+  memcached: true
 
 # todo components
 components:
@@ -382,3 +391,319 @@ mongodb:
     
     # Enable old mongodb-exporter compatible metrics
     compatible_mode = true
+
+
+prometheus:
+  config:
+    global:
+      scrape_interval: 15s
+      external_labels:
+        cplugin: 'prometheus'
+
+    scrape_configs:
+      - job_name: 'xxx'
+        static_configs:
+          - targets:
+              - 'http://prometheus:8080/metrics'
+        scrape_rule_files:
+          - 'rule.toml'
+
+  rule: |
+    headers = []
+    connect_timeout_millis = 500
+    request_timeout_millis = 5000
+    # for duplicate # HELP and metric name
+    split_body = true
+
+elasticsearch:
+  config:
+    global:
+      scrape_interval: 15s
+      external_labels:
+        cplugin: 'elasticsearch'
+
+    scrape_configs:
+      - job_name: 'elasticsearch'
+        static_configs:
+          - targets:
+              - http://elasticsearch:9200
+        scrape_rule_files:
+          - 'rule.toml'
+
+  rule: |
+    username = ""
+    password = ""
+    apikey = ""
+    timeout = "5s"
+    
+    # set to "*"      -> /_nodes/stats
+    # set to "_local" -> /_nodes/_local/stats
+    gather_node = "*"
+    
+    # e.g. cluster cluster_uuid version build_date build_hash
+    gather_cluster_info = true
+    
+    # _cluster/settings
+    gather_cluster_settings = false
+    
+    # /_snapshot and /_snapshot/*/_all
+    gather_snapshots = false
+    
+    # /_all/_stats
+    # querystring: ignore_unavailable=true
+    gather_indices = false
+    
+    # querystring: ignore_unavailable=true&level=shards
+    # only gahter node_shards_total by node
+    gather_indices_shards = false
+    
+    # /_all/_settings
+    gather_indices_settings = false
+    
+    # /_all/_mappings
+    gather_indices_mappings = false
+    
+    # /_alias
+    gather_indices_use_alias = true
+    
+    # /_ilm/status and /_all/_ilm/explain
+    gather_ilm = false
+    
+    # /_slm/stats and /_slm/status
+    gather_slm = false
+    
+    # /_data_stream/*/_stats
+    gather_data_stream = false
+    
+    # Path to PEM file that contains trusted Certificate Authorities for the Elasticsearch connection.
+    tls_ca = ""
+    
+    # Path to PEM file that contains the private key for client auth when connecting to Elasticsearch.
+    tls_client_private_key = ""
+    
+    # Path to PEM file that contains the corresponding cert for the private key to connect to Elasticsearch.
+    tls_client_cert = ""
+    
+    # Skip SSL verification when connecting to Elasticsearch.
+    tls_skip_verify = false
+    
+    # Region for AWS elasticsearch
+    aws_region = ""
+    
+    # Role ARN of an IAM role to assume.
+    aws_role_arn = ""   
+
+
+oracle:
+  config:
+    global:
+      scrape_interval: 15s
+      external_labels:
+        cplugin: 'oracle'
+
+    scrape_configs:
+      - job_name: 'oracle'
+        static_configs:
+          - targets:
+              - oracle:1521/xe # ip:port/service
+        scrape_rule_files:
+          - 'link.toml'
+          - 'comm.toml'
+  link: |
+    [global]
+    username = "system"
+    password = "oracle"
+    options = {}
+
+  comm: |
+    [[queries]]
+    mesurement = "sessions"
+    label_fields = [ "status", "type" ]
+    # value= "Gauge metric with count of sessions by status and type."
+    metric_fields = [ "value" ]
+    request = "SELECT status, type, COUNT(*) as value FROM v$session GROUP BY status, type"
+
+    [[queries]]
+    mesurement = "resource"
+    label_fields = [ "resource_name" ]
+    # current_utilization= "Generic counter metric from v$resource_limit view in Oracle (current value)."
+    # limit_value="Generic counter metric from v$resource_limit view in Oracle (UNLIMITED: -1)."
+    metric_fields = [ "current_utilization", "limit_value" ]
+    request="SELECT resource_name,current_utilization,CASE WHEN TRIM(limit_value) LIKE 'UNLIMITED' THEN '-1' ELSE TRIM(limit_value) END as limit_value FROM v$resource_limit"
+
+    [[queries]]
+    mesurement = "asm_diskgroup"
+    label_fields = [ "name" ]
+    # total = "Total size of ASM disk group."
+    # free = "Free space available on ASM disk group."
+    metric_fields = [ "total", "free" ]
+    request = "SELECT name,total_mb*1024*1024 as total,free_mb*1024*1024 as free FROM v$asm_diskgroup_stat where exists (select 1 from v$datafile where name like '+%')"
+
+    [[queries]]
+    mesurement = "activity"
+    # value="Generic counter metric from v$sysstat view in Oracle."
+    metric_fields = [ "value" ]
+    field_to_append = "name"
+    request = "SELECT name, value FROM v$sysstat WHERE name IN ('parse count (total)', 'execute count', 'user commits', 'user rollbacks')"
+
+    [[queries]]
+    mesurement = "process"
+    # count="Gauge metric with count of processes." 
+    metric_fields = [ "count" ]
+    request = "SELECT COUNT(*) as count FROM v$process"
+
+    [[queries]]
+    mesurement = "wait_time"
+    # value="Generic counter metric from v$waitclassmetric view in Oracle."
+    metric_fields = [ "value" ]
+    field_to_append= "wait_class"
+    request = '''
+    SELECT
+      n.wait_class as wait_class,
+      round(m.time_waited/m.INTSIZE_CSEC,3) as value
+    FROM
+      v$waitclassmetric  m, v$system_wait_class n
+    WHERE
+      m.wait_class_id=n.wait_class_id AND n.wait_class != 'Idle'
+    '''
+
+    [[queries]]
+    mesurement = "tablespace"
+    label_fields = [ "tablespace", "type" ]
+    # bytes = "Generic counter metric of tablespaces bytes in Oracle."
+    # max_bytes = "Generic counter metric of tablespaces max bytes in Oracle."
+    # free = "Generic counter metric of tablespaces free bytes in Oracle."
+    # used_percent = "Gauge metric showing as a percentage of how much of the tablespace has been used."
+    metric_fields = [ "bytes", "max_bytes", "free", "used_percent" ]
+    request = '''
+    SELECT
+        dt.tablespace_name as tablespace,
+        dt.contents as type,
+        dt.block_size * dtum.used_space as bytes,
+        dt.block_size * dtum.tablespace_size as max_bytes,
+        dt.block_size * (dtum.tablespace_size - dtum.used_space) as free,
+        dtum.used_percent
+    FROM  dba_tablespace_usage_metrics dtum, dba_tablespaces dt
+    WHERE dtum.tablespace_name = dt.tablespace_name
+    ORDER by tablespace
+    '''
+
+    [[queries]]
+    mesurement = "slow_queries"
+    # p95_time_usecs= "Gauge metric with percentile 95 of elapsed time.", p99_time_usecs= "Gauge metric with percentile 99 of elapsed time."
+    metric_fields = [ "p95_time_usecs", "p99_time_usecs" ]
+    request = '''
+    select percentile_disc(0.95) within group (order by elapsed_time) as p95_time_usecs,
+      percentile_disc(0.99) within group (order by elapsed_time) as p99_time_usecs
+    from v$sql where last_active_time >= sysdate - 5/(24*60)
+    '''
+
+    [[metrics]]
+    mesurement = "sysmetric"
+    metric_fields = [ "value" ]
+    field_to_append = "metric_name"
+    timeout = "3s"
+    request = '''
+    select METRIC_NAME,VALUE from v$sysmetric where group_id=2
+    '''
+
+    [[metrics]]
+    mesurement = "archivelog"
+    metric_fields = [ "count" ]
+    timeout = "3s"
+    request = '''
+    select count(*) as count from v$log_history where first_time>=to_date(sysdate)
+    '''
+
+
+whois:
+  config:
+    global:
+      scrape_interval: 60s
+      external_labels:
+        cplugin: 'whois'
+
+    scrape_configs:
+      - job_name: 'domain'
+        static_configs:
+          - targets:
+              - baidu.com
+              - flashcat.cloud
+  rule: |
+    [global]
+
+postgres:
+  config:
+    global:
+      scrape_interval: 15s
+      external_labels:
+        cplugin: 'postgres'
+
+    scrape_configs:
+      - job_name: 'postgres'
+        static_configs:
+          - targets:
+              - 'postgres:15432'
+        scrape_rule_files:
+          - 'rule.toml'
+
+  rule: |
+    # Authentication credentials
+    username = "postgres"
+    password = "password"
+    options = { sslmode = "disable" }
+    
+    # Do not include default metrics
+    disable_default_metrics = false
+    
+    # Do not include pg_settings metrics
+    disable_settings_metrics = false
+    
+    enabled_collectors = [
+    "database",
+    "stat_database",
+    "locks",
+    "replication_slot",
+    "replication",
+    "stat_bgwriter",
+    "stat_user_tables",
+    "statio_user_tables",
+    "wal"
+    ]
+tomcat:
+  config:
+    global:
+      scrape_interval: 15s
+      external_labels:
+        cplugin: 'tomcat'
+
+    scrape_configs:
+      - job_name: 'tomcat'
+        static_configs:
+          - targets:
+              - 'tomcat:8080'
+        scrape_rule_files:
+          - 'rule.toml'
+
+  rule: |
+    basic_auth_user = "tomcat"
+    basic_auth_pass = "s3cret"
+    # gather_servlets = false
+
+memcached:
+  config:
+    global:
+      scrape_interval: 15s
+      external_labels:
+        cplugin: 'memcached'
+
+    scrape_configs:
+      - job_name: 'memcached'
+        static_configs:
+          - targets:
+              - 'memcached:11211'
+        scrape_rule_files:
+          - 'rule.toml'
+
+  rule: |
+    timeout = "1s"
