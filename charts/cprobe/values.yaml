@@ -64,6 +64,7 @@ plugins:
   postgres: true
   tomcat: true
   memcached: true
+  consul: true
 
 # todo components
 components:
@@ -707,3 +708,21 @@ memcached:
 
   rule: |
     timeout = "1s"
+
+consul:
+  config:
+    global:
+      scrape_interval: 15s
+      external_labels:
+        cplugin: 'consul'
+
+    scrape_configs:
+      - job_name: 'consul'
+        static_configs:
+          - targets:
+              - 'consul:8500'
+        scrape_rule_files:
+          - 'rule.toml'
+
+  rule: |
+    allow_stale = true

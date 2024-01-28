@@ -18,6 +18,7 @@ This Helm Chart includes all the components of Cprobe for a complete experience.
     - [x] Postgres
     - [x] Tomcat
     - [x] Memcached
+    - [x] Consul
 - [x] Management & monitoring components:
     - [ ] Prometheus
     - [ ] Grafana
