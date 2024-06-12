@@ -135,7 +135,6 @@ redis:
     is_cluster = false
 
   rule: |
-    [global]
     user = ""
     password = ""
 
