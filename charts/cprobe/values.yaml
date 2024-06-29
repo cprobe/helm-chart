@@ -177,6 +177,7 @@ mysql:
     user = 'root'
     password = 'root'
 
+
   rule_coll: |
     [collect_global_status]
     enabled = true
@@ -310,9 +311,6 @@ mysql:
     
     [collect_slave_hosts]
     enabled = false
-
-
-
 
 mongodb:
   config:
