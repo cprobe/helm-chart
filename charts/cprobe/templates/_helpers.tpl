@@ -72,7 +72,7 @@ Create configmaps mount into deployment
 {{- range $item, $plugin := .Values.plugins }}
 {{- $pluginName := $item }}
 {{ if $plugin }}
-- name: cprobe-{{ $pluginName }}-config
+- name: {{ $.Release.Name }}-{{ $pluginName }}-config
   mountPath: /app/conf.d/{{ $pluginName }}
 {{- end}}
 {{- end}}
