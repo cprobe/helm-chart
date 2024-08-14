@@ -35,11 +35,9 @@ Access a Kubernetes cluster.
 Add a chart helm repository with follow commands:
 
 ```console
-git clone https://github.com/cprobe/helm-chart.git
+$ helm repo add cprobe https://cprobe.github.io/helm-chart
 
-cd helm-chart
-
-helm install cprobe ./charts/cprobe -n NAMESPACE
+$ helm install my-cprobe cprobe/cprobe -n cprobe --create-namespace
 ```
 
 
